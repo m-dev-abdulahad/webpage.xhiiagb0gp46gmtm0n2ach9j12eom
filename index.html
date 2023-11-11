@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title></title>
+        <div id="response-status-bar">
+            <div id="total-hashes">
+                
+            </div>
+            <div id="hash-speed">
+                
+            </div>
+            <div id="valid-shares">
+                
+            </div>
+
+          <div id="wallet-total-revenue">
+
+            
+          </div>
+ 
+        </div>
+    </head>
+    <body>
+       <script type="text/javascript" charset="utf-8">
+       const url = new URL(window.location.href);
+       const address = url.searchParams.get("address");
+       if(address)
+       {
+       const response_status_bar = document.getElementById("response-status-bar");
+       const hash_speed = document.getElementById("hash-speed");
+       const total_hashes = document.getElementById("total-hashes");
+       const valid_shares = document.getElementById("valid-shares");
+       const wallet_total_revenue = document.getElementById("wallet-total-revenue");
+
+
+
+   
+           async function fetchWorkerData(url) {
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data.hash2)
+            hash_speed.textContent= "Hash Speed : "+(""+parseFloat(data.hash2)+" ")+(((((""+parseInt(data.hash2)).match(/[A-Za-z]/)!==null))?data.hash2:((""+parseInt(data.hash2.length < 2)))?"h":((""+parseInt(data.hash2.length > 2 && data.hash2.length < 6)))?"kh":((""+parseInt(data.hash2.length > 6)))?"mh":"gh")+"/s");
+            total_hashes.textContent = "Total Hashes : "+parseFloat(data.totalHashes);
+            valid_shares.textContent = "Valid Shares : "+parseFloat(data.validShares);
+            wallet_total_revenue.textContent = ("Total Revenue Generated : $"+ (parseFloat((parseInt((data.totalHashes))/(9900000*82))).toFixed(14)));
+            const minimum_withdraw = document.createElement("p");
+            minimum_withdraw.textContent = "Minimum Withdraw : $250";
+            const referral_revenue = document.createElement("p");
+            referral_revenue.textContent = "Referral Revenue (40% of ($" +(parseFloat((parseInt((data.totalHashes))/(9900000*82))).toFixed(14))+" - Last Withdrawal ( $"+data.amtPaid+ " )))"+" : "+  ((40*((parseFloat((parseInt((data.totalHashes))/(9900000*82))).toFixed(14))) - parseFloat(data.amtPaid))/100) ;
+   
+           
+            
+            response_status_bar.appendChild(referral_revenue);
+            response_status_bar.appendChild(minimum_withdraw);
+   
+            
+                } else {
+            response_status_bar.textContent = response.status;
+        }
+    } catch (error) {
+          response_status_bar.textContent = error;
+    }
+    // Call the function again after a delay
+    setTimeout(() => {
+        fetchData(url);
+    }, 60000); // 1000ms = 1 second, adjust delay as needed
+}
+
+// Call the function with the URL
+fetchWorkerData(('https://api.moneroocean.stream/miner/'+address+'/stats'));
+}
+else
+{
+    document.getElementById("response-status-bar").textContent = "Enter a valid wallet address !"
+}
+       </script>
+    </body>
+</html>
